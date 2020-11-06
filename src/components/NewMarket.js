@@ -10,6 +10,19 @@ class NewMarket extends React.Component {
   state = {
     addMarketDialog: false,
     name: '',
+    tags: ['Arts', 'Web Dev', 'Technology', 'Craft', 'Entertainment'],
+    selectedTags: [],
+    options: [],
+  };
+
+  handleFilterTags = (query) => {
+    const options = this.state.tags
+      .map((tag) => ({ value: tag, label: tag }))
+      .filter((tag) =>
+        tag.label.toLocaleLowerCase().includes(query.toLocaleLowerCase())
+      );
+
+    this.setState({ options });
   };
 
   handleAddMarket = async (user) => {
@@ -19,14 +32,16 @@ class NewMarket extends React.Component {
       const input = {
         name: this.state.name,
         owner: user.username,
+        tags: this.state.selectedTags,
       };
 
       const result = await API.graphql(
         graphqlOperation(createMarket, { input })
       );
 
+      console.log(result);
       console.info(`created market: ${result.data.createMarket.id}`);
-      this.setState({ name: '' });
+      this.setState({ name: '', selectedTags: [] });
     } catch (err) {
       console.error('Error Adding new market', err);
       Notification.error({
@@ -69,6 +84,27 @@ class NewMarket extends React.Component {
                       onChange={(name) => this.setState({ name })}
                       value={this.state.name}
                     />
+                  </Form.Item>
+
+                  <Form.Item label="Add tags">
+                    <Select
+                      multiple={true}
+                      filterable={true}
+                      placeholder="Market Tags"
+                      onChange={(selectedTags) =>
+                        this.setState({ selectedTags })
+                      }
+                      remoteMethod={this.handleFilterTags}
+                      remote={true}
+                    >
+                      {this.state.options.map((option) => (
+                        <Select.Option
+                          key={option.value}
+                          label={option.label}
+                          value={option.value}
+                        />
+                      ))}
+                    </Select>
                   </Form.Item>
                 </Form>
               </Dialog.Body>
