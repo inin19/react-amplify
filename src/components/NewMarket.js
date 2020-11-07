@@ -57,7 +57,7 @@ class NewMarket extends React.Component {
         {({ user }) => (
           <>
             <div className="market-header">
-              <div className="market-title">
+              <h1 className="market-title">
                 Create Your market Place
                 <Button
                   onClick={() => this.setState({ addMarketDialog: true })}
@@ -65,7 +65,30 @@ class NewMarket extends React.Component {
                   icon="edit"
                   className="market-title-button"
                 />
-              </div>
+              </h1>
+
+              <Form inline={true} onSubmit={this.props.handleSearch}>
+                <Form.Item>
+                  <Input
+                    value={this.props.searchTerm}
+                    placeholder="Search Markets..."
+                    icon="circle-cross"
+                    onIconClick={this.props.handleClearSearch}
+                    onChange={this.props.handleSearchChange}
+                  />
+                </Form.Item>
+
+                <Form.Item>
+                  <Button
+                    type="info"
+                    icon="search"
+                    onClick={this.props.handleSearch}
+                    loading={this.props.isSearching}
+                  >
+                    Search
+                  </Button>
+                </Form.Item>
+              </Form>
             </div>
 
             <Dialog
