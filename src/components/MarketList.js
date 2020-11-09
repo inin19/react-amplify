@@ -7,7 +7,7 @@ import { graphqlOperation } from 'aws-amplify';
 import Error from './Error';
 import { Link } from 'react-router-dom';
 
-const MarketList = () => {
+const MarketList = ({ searchResults }) => {
   const onNewMarket = (prevQuery, newData) => {
     let updatedQuery = { ...prevQuery };
     const updatedMarketList = [
@@ -22,7 +22,6 @@ const MarketList = () => {
     return updatedQuery;
   };
 
-
   return (
     <Connect
       query={graphqlOperation(listMarkets)}
@@ -33,17 +32,28 @@ const MarketList = () => {
         if (errors.lengh > 0) return <Error errors={errors} />;
         if (loading || !data.listMarkets) return <Loading fullscreen={true} />;
 
+        const markets =
+          searchResults.length > 0 ? searchResults : data.listMarkets.items;
+
         return (
           <>
-            <h2 className="header">
-              <img
-                src="https://banner2.cleanpng.com/20171217/01f/shopping-cart-png-5a364b6d3217e8.4884266315135076932052.jpg"
-                alt="Store-Icon"
-                className="large-icon"
-              />
-              Markets
-            </h2>
-            {data.listMarkets.items.map((market) => (
+            {searchResults.length > 0 ? (
+              <h2 className="text-green">
+                <Icon type="success" name="check" className="icon" />
+                {searchResults.length} Results
+              </h2>
+            ) : (
+              <h2 className="header">
+                <img
+                  src="https://banner2.cleanpng.com/20171217/01f/shopping-cart-png-5a364b6d3217e8.4884266315135076932052.jpg"
+                  alt="Store-Icon"
+                  className="large-icon"
+                />
+                Markets
+              </h2>
+            )}
+
+            {markets.map((market) => (
               <div key={market.id} className="my-2">
                 <Card
                   bodyStyle={{
