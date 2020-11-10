@@ -113,7 +113,7 @@ export const getUser = /* GraphQL */ `
   query GetUser($id: ID!) {
     getUser(id: $id) {
       id
-      userName
+      username
       email
       registered
       orders {

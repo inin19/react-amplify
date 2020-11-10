@@ -185,7 +185,7 @@ export const registerUser = /* GraphQL */ `
   ) {
     registerUser(input: $input, condition: $condition) {
       id
-      userName
+      username
       email
       registered
       orders {
@@ -208,7 +208,7 @@ export const updateUser = /* GraphQL */ `
   ) {
     updateUser(input: $input, condition: $condition) {
       id
-      userName
+      username
       email
       registered
       orders {
@@ -255,7 +255,7 @@ export const createOrder = /* GraphQL */ `
       }
       user {
         id
-        userName
+        username
         email
         registered
         orders {
