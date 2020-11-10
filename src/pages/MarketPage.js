@@ -1,10 +1,37 @@
 import React from 'react';
 import { Loading, Tabs, Icon } from 'element-react';
 import { API, graphqlOperation } from 'aws-amplify';
-import { getMarket } from '../graphql/queries';
 import { Link } from 'react-router-dom';
 import NewProduct from '../components/NewProduct';
 import Product from '../components/Product';
+
+export const getMarket = /* GraphQL */ `
+  query GetMarket($id: ID!) {
+    getMarket(id: $id) {
+      id
+      name
+      products {
+        items {
+          id
+          description
+          price
+          shipped
+          owner
+          file {
+            key
+          }
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      tags
+      owner
+      createdAt
+      updatedAt
+    }
+  }
+`;
 
 class MarketPage extends React.Component {
   state = {
@@ -18,7 +45,6 @@ class MarketPage extends React.Component {
   }
 
   handleGetMarket = async () => {
-
     const input = {
       id: this.props.marketId,
     };
@@ -41,7 +67,6 @@ class MarketPage extends React.Component {
 
   render() {
     const { market, isLoading, isMarketOwner } = this.state;
-
 
     return isLoading ? (
       <Loading fullscreen={true} />
@@ -92,13 +117,13 @@ class MarketPage extends React.Component {
               </>
             }
             name="2"
-          />
-
-          {/* <div className="product-list">
-            {market.products.items.map((product) => (
-              <Product product={product} />
-            ))}
-          </div> */}
+          >
+            <div className="product-list">
+              {market.products.items.map((product) => (
+                <Product product={product} key={product.id} />
+              ))}
+            </div>
+          </Tabs.Pane>
         </Tabs>
       </>
     );
