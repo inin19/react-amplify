@@ -15,15 +15,16 @@ const initialState = {
   imagePreview: '',
   image: '',
   isUploading: false,
+  percentUploaded: 0,
 };
 
 class NewProduct extends React.Component {
   state = { ...initialState };
 
-  componentDidMount() {
-    console.log('debug');
-    console.log(this.props.marketId);
-  }
+  // componentDidMount() {
+  //   console.log('debug');
+  //   console.log(this.props.marketId);
+  // }
 
   handleAddProduct = async () => {
     try {
@@ -36,6 +37,13 @@ class NewProduct extends React.Component {
 
       const updatedFile = await Storage.put(filename, this.state.image.file, {
         contentType: this.state.image.type,
+        progressCallback: (progress) => {
+          console.log(`Uploaded:${progress.loaded}/${progress.total}`);
+          const percentUploaded = Math.round(
+            (progress.loaded / progress.total) * 100
+          );
+          this.setState({ percentUploaded });
+        },
       });
 
       const file = {
@@ -78,6 +86,7 @@ class NewProduct extends React.Component {
       shipped,
       imagePreview,
       isUploading,
+      percentUploaded,
     } = this.state;
 
     return (
@@ -129,6 +138,15 @@ class NewProduct extends React.Component {
                 className="image-preview"
                 src={imagePreview}
                 alt="Product Preview"
+              />
+            )}
+
+            {percentUploaded > 0 && (
+              <Progress
+                type="circle"
+                className="progress"
+                status="success"
+                percentage={percentUploaded}
               />
             )}
 
