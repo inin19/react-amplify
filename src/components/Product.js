@@ -5,7 +5,7 @@ import { S3Image } from 'aws-amplify-react';
 import { convertCentsToDollars, convertDollarsToCents } from './../utils';
 import { UserContext } from '../App';
 import PayButton from './PayButton';
-import { updateProduct } from './../graphql/mutations';
+import { updateProduct, deleteProduct } from './../graphql/mutations';
 import { API, graphqlOperation } from 'aws-amplify';
 
 class Product extends React.Component {
@@ -44,9 +44,39 @@ class Product extends React.Component {
     }
   };
 
+  handleDeleteProduct = async (productId) => {
+    try {
+      this.setState({ deleteProductDialog: false });
+
+      const input = {
+        id: productId,
+      };
+
+      const result = await API.graphql(
+        graphqlOperation(deleteProduct, { input })
+      );
+
+      console.log(result);
+
+      Notification({
+        title: 'Success',
+        message: 'Product succesfully deleted!',
+        type: 'success',
+      });
+    } catch (err) {
+      console.error(`failed to delete profudct with id :${productId}`, err);
+    }
+  };
+
   render() {
     const { product } = this.props;
-    const { updateProductDialog, description, shipped, price } = this.state;
+    const {
+      updateProductDialog,
+      description,
+      shipped,
+      price,
+      deleteProductDialog,
+    } = this.state;
     return (
       <UserContext.Consumer>
         {({ user }) => {
@@ -101,7 +131,48 @@ class Product extends React.Component {
                       }
                     />
 
-                    <Button type="danger" icon="delete" />
+                    <Popover
+                      placement="top"
+                      width="160"
+                      trigger="click"
+                      visible={deleteProductDialog}
+                      content={
+                        <>
+                          <p>DO you want ot delete this</p>
+
+                          <div className="text-right">
+                            <Button
+                              size="mini"
+                              type="text"
+                              className="m-1"
+                              onClick={() =>
+                                this.setState({ deleteProductDialog: false })
+                              }
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              size="mini"
+                              type="primary"
+                              className="m-1"
+                              onClick={() =>
+                                this.handleDeleteProduct(product.id)
+                              }
+                            >
+                              Confirm
+                            </Button>
+                          </div>
+                        </>
+                      }
+                    >
+                      <Button
+                        onClick={() =>
+                          this.setState({ deleteProductDialog: true })
+                        }
+                        type="danger"
+                        icon="delete"
+                      />
+                    </Popover>
                   </>
                 )}
               </div>
