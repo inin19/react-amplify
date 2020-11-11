@@ -4,6 +4,11 @@ import { API, graphqlOperation } from 'aws-amplify';
 import { Link } from 'react-router-dom';
 import NewProduct from '../components/NewProduct';
 import Product from '../components/Product';
+import {
+  onCreateProduct,
+  onUpdateProduct,
+  onDeleteProduct,
+} from './../graphql/subscriptions';
 
 export const getMarket = /* GraphQL */ `
   query GetMarket($id: ID!) {
@@ -42,6 +47,69 @@ class MarketPage extends React.Component {
 
   componentDidMount() {
     this.handleGetMarket();
+
+    // console.log(this.props.user);
+
+    this.createProductListener = API.graphql(
+      graphqlOperation(onCreateProduct, { owner: this.props.user.attributes.sub })
+    ).subscribe({
+      next: (productData) => {
+        const createdProduct = productData.value.data.onCreateProduct;
+
+        const prevProducts = this.state.market.products.items.filter(
+          (item) => item.id !== createdProduct.id
+        );
+
+        const updatedProducts = [createdProduct, ...prevProducts];
+
+        const market = { ...this.state.market };
+        market.products.items = updatedProducts;
+        this.setState({ market });
+      },
+    });
+
+    this.updateProductListener = API.graphql(
+      graphqlOperation(onUpdateProduct, { owner: this.props.user.attributes.sub })
+    ).subscribe({
+      next: (productData) => {
+
+        const updatedProduct = productData.value.data.onUpdateProduct;
+
+        const updatedProductIndex = this.state.market.products.items.findIndex(
+          (item) => item.id === updatedProduct.id
+        );
+
+        const updatedProducts = [
+          ...this.state.market.products.items.slice(0, updatedProductIndex),
+          updatedProduct,
+          ...this.state.market.products.items.slice(updatedProductIndex + 1),
+        ];
+
+        const market = { ...this.state.market };
+        market.products.items = updatedProducts;
+        this.setState({ market });
+      },
+    });
+
+    this.deleteProductListener = API.graphql(
+      graphqlOperation(onDeleteProduct, { owner: this.props.user.attributes.sub })
+    ).subscribe({
+      next: (productData) => {
+        const deletedProduct = productData.value.data.onDeleteProduct;
+        const updatedProducts = this.state.market.products.items.filter(
+          (item) => item.id !== deletedProduct.id
+        );
+        const market = { ...this.state.market };
+        market.products.items = updatedProducts;
+        this.setState({ market });
+      },
+    });
+  }
+
+  componentWillUnmount() {
+    this.createProductListener.unsubscribe();
+    this.updateProductListener.unsubscribe();
+    this.deleteProductListener.unsubscribe();
   }
 
   handleGetMarket = async () => {

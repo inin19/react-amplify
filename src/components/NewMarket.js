@@ -39,7 +39,6 @@ class NewMarket extends React.Component {
         graphqlOperation(createMarket, { input })
       );
 
-      console.log(result);
       console.info(`created market: ${result.data.createMarket.id}`);
       this.setState({ name: '', selectedTags: [] });
     } catch (err) {
