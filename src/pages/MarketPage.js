@@ -119,6 +119,9 @@ class MarketPage extends React.Component {
 
     const result = await API.graphql(graphqlOperation(getMarket, input));
 
+
+    // console.log(result.data.getMarket);
+
     this.setState({ market: result.data.getMarket, isLoading: false }, () => {
       this.checkMarketOwner();
     });
@@ -135,6 +138,7 @@ class MarketPage extends React.Component {
 
   render() {
     const { market, isLoading, isMarketOwner } = this.state;
+
 
     return isLoading ? (
       <Loading fullscreen={true} />
